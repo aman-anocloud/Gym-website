@@ -1,0 +1,34 @@
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.api
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATA_FILE: /app/apps/api/data/devfitness.json
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: devfitness
+      SESSION_SECRET: local-devfitness-secret
+      WHATSAPP_DRY_RUN: "true"
+    volumes:
+      - api_data:/app/apps/api/data
+
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: devfitness
+      POSTGRES_PASSWORD: devfitness
+      POSTGRES_DB: devfitness
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ../database/schema.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
+      - ../database/seed.sql:/docker-entrypoint-initdb.d/002_seed.sql:ro
+
+volumes:
+  api_data:
+  pg_data:

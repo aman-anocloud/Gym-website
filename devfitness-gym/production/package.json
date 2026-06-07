@@ -1,0 +1,50 @@
+{
+  "name": "devfitness-gym-production",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Production-oriented full-stack scaffold for DEV FITNESS GYM Management System.",
+  "scripts": {
+    "start": "node apps/api/src/server.js",
+    "dev": "node apps/api/src/server.js",
+    "api:nest:dev": "nest start --watch --config apps/api-nest/nest-cli.json",
+    "web:dev": "next dev apps/web-next -p 3000",
+    "test": "node --test apps/api/tests/domain.test.js",
+    "check": "node --check apps/api/src/server.js",
+    "e2e": "playwright test tests/e2e"
+  },
+  "dependencies": {
+    "@google-cloud/storage": "^7.16.0",
+    "@nestjs/common": "^10.4.15",
+    "@nestjs/config": "^3.3.0",
+    "@nestjs/core": "^10.4.15",
+    "@nestjs/jwt": "^10.2.0",
+    "@nestjs/passport": "^10.0.3",
+    "@nestjs/platform-express": "^10.4.15",
+    "@nestjs/schedule": "^4.1.1",
+    "bcrypt": "^5.1.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "cookie-parser": "^1.4.7",
+    "next": "^14.2.24",
+    "pg": "^8.13.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^10.4.9",
+    "@playwright/test": "^1.49.1",
+    "@types/bcrypt": "^5.0.2",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/node": "^20.17.10",
+    "@types/pg": "^8.20.0",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

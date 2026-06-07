@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "../../dist/api-nest",
+    "rootDir": "src"
+  },
+  "include": ["src/**/*.ts"]
+}

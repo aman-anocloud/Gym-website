@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+service-account*.json
+gcp-key*.json
+
+# Local app data
+devfitness-gym/production/apps/api/data/*.json
+devfitness-gym/production/apps/api/data/uploads/
+!devfitness-gym/production/apps/api/data/.gitkeep
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+coverage/
+playwright-report/
+test-results/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Temporary files
+tmp/
+temp/
+.cache/
+
+# Google Cloud local config
+.gcloud/

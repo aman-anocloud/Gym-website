@@ -171,6 +171,7 @@ textarea:focus {
   position: sticky;
   top: 0;
   height: 100vh;
+  grid-column: 1;
 }
 
 .nav {
@@ -683,8 +684,379 @@ tr:last-child td {
   border-radius: 4px 4px 0 0;
 }
 
+/* Status coded color badges */
+.badge.active {
+  background: #e6f4ea;
+  color: #137333;
+}
+.badge.due {
+  background: #fce8e6;
+  color: #c5221f;
+}
+.badge.expiring-soon {
+  background: #fef7e0;
+  color: #b06000;
+}
+.badge.expired {
+  background: #f1f3f4;
+  color: #5f6368;
+}
+
+/* User cell with tiny avatar */
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar-tiny {
+  width: 32px;
+  height: 32px;
+  border-radius: 99px;
+  background: var(--saffron);
+  color: #171717;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.8rem;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+
+.avatar-tiny img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Sticky Header and Layout elements */
+.main-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-width: 0;
+  grid-column: 2;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+
+.hamburger-btn {
+  display: none;
+  font-size: 1.25rem;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.close-menu-btn {
+  display: none;
+  font-size: 1.5rem;
+  background: transparent;
+  border: 0;
+  color: #fff;
+  cursor: pointer;
+}
+
+.header-title {
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Notification Container and Bell */
+.notification-container {
+  position: relative;
+}
+
+.notification-bell {
+  background: transparent;
+  border: 0;
+  font-size: 1.35rem;
+  position: relative;
+  padding: 6px;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.notification-bell:hover {
+  background: var(--soft);
+}
+
+.bell-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: var(--red);
+  color: white;
+  border-radius: 99px;
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  font-weight: 800;
+}
+
+.notification-dropdown {
+  position: absolute;
+  right: 0;
+  top: 44px;
+  width: 320px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  z-index: 200;
+  display: none;
+}
+
+.notification-dropdown.show {
+  display: block;
+}
+
+.dropdown-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.dropdown-body {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--soft);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.notification-item:hover {
+  background: var(--soft);
+}
+
+.notification-item strong {
+  display: block;
+  font-size: 0.85rem;
+}
+
+.notification-item p {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* Quick Actions Widget */
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.quick-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  min-height: 90px;
+  background: #fdfcf9;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.quick-action-btn:hover {
+  background: var(--soft);
+  border-color: var(--saffron);
+  transform: translateY(-2px);
+}
+
+.quick-action-btn .icon {
+  font-size: 1.5rem;
+}
+
+/* Member Risk (Dues) Widget */
+.risk-list {
+  list-style: none;
+  padding: 0;
+  margin: 14px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.risk-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.risk-subtext {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.due-amount {
+  font-weight: 800;
+  color: var(--red);
+  margin-right: 8px;
+  font-size: 0.9rem;
+}
+
+.risk-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Monthly Revenue Trend Chart */
+.trend-chart-container {
+  padding: 24px 12px 12px;
+}
+
+.trend-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  height: 180px;
+}
+
+.trend-bar-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.trend-bar {
+  width: 100%;
+  max-width: 32px;
+  background: linear-gradient(180deg, var(--saffron), var(--saffron-dark));
+  border-radius: 4px 4px 0 0;
+  min-height: 8px;
+  transition: all 0.3s ease;
+}
+
+.trend-bar:hover {
+  opacity: 0.85;
+  transform: scaleY(1.05);
+}
+
+.trend-bar-label-top {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.trend-bar-label-bottom {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+/* Tabs & Renewal Center styles */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tab {
+  padding: 10px 16px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-weight: 800;
+  transition: all 0.2s;
+}
+
+.tab.active {
+  background: var(--saffron);
+  border-color: var(--saffron);
+  color: #171717;
+}
+
+.tab:hover:not(.active) {
+  background: var(--soft);
+}
+
+/* Option checkbox row in Settings */
+.option-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 6px;
+}
+
+.choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-backdrop.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Responsive & Layout Overrides */
 @media (max-width: 1060px) {
-  .stats-grid,
+  .stats-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
   .three-col {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -709,47 +1081,139 @@ tr:last-child td {
     grid-template-columns: 1fr;
   }
 
+  .main-container {
+    grid-column: auto;
+  }
+
+  .sidebar-backdrop {
+    display: block;
+  }
+
+  /* Sidebar Drawer Navigation */
   .sidebar {
-    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    box-shadow: var(--shadow);
+    grid-column: auto;
+  }
+  
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+
+  .hamburger-btn {
+    display: block;
+  }
+
+  .close-menu-btn {
+    display: block;
+    margin-left: auto;
+  }
+
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 10px;
   }
 
   .main {
-    padding: 16px 14px 82px;
+    padding: 16px 14px;
   }
 
-  .topbar {
-    align-items: flex-start;
-    flex-direction: column;
+  .stats-grid {
+    grid-template-columns: 1fr;
   }
 
-  .stats-grid,
   .form-grid,
   .filters {
     grid-template-columns: 1fr;
   }
 
-  .mobile-nav {
-    position: fixed;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+  .add-member-quick-btn {
+    display: none; /* Hide on mobile to save header space */
+  }
+
+  /* Mobile Payment Table Card views */
+  #paymentLedger table {
+    min-width: 0;
+  }
+
+  #paymentLedger table,
+  #paymentLedger tbody,
+  #paymentLedger tr,
+  #paymentLedger td {
+    display: block;
+    width: 100%;
+  }
+  
+  #paymentLedger thead {
+    display: none;
+  }
+  
+  #paymentLedger tr {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  }
+  
+  #paymentLedger td {
+    position: relative;
+    padding-left: 45%;
+    text-align: right;
+    border: 0;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--soft);
+    min-height: 36px;
+    box-sizing: border-box;
+  }
+  
+  #paymentLedger tr td:last-child {
+    border-bottom: 0;
+  }
+  
+  #paymentLedger td::before {
+    position: absolute;
     left: 0;
-    right: 0;
-    bottom: 0;
-    background: #202124;
-    color: #fff;
-    z-index: 10;
+    top: 8px;
+    width: 40%;
+    text-align: left;
+    white-space: nowrap;
   }
-
-  .mobile-nav button {
-    min-height: 58px;
-    color: #d9d1c5;
-    display: grid;
-    place-items: center;
-    gap: 2px;
-    font-size: 0.72rem;
+  
+  #paymentLedger td:nth-of-type(1)::before { content: "Payment ID"; font-weight: 800; color: var(--muted); }
+  #paymentLedger td:nth-of-type(2)::before { content: "Date"; font-weight: 800; color: var(--muted); }
+  #paymentLedger td:nth-of-type(3)::before { content: "Member"; font-weight: 800; color: var(--muted); }
+  #paymentLedger td:nth-of-type(4)::before { content: "Amount"; font-weight: 800; color: var(--muted); }
+  #paymentLedger td:nth-of-type(5)::before { content: "Mode"; font-weight: 800; color: var(--muted); }
+  #paymentLedger td:nth-of-type(6)::before { content: "Remarks"; font-weight: 800; color: var(--muted); }
+  
+  #paymentLedger tr:last-child {
+    background: var(--soft);
+    border: 1px dashed var(--line);
   }
-
-  .mobile-nav button.active {
-    color: var(--saffron);
+  
+  #paymentLedger tr:last-child td {
+    border: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 0;
+    text-align: right;
+    min-height: 0;
   }
+  
+  #paymentLedger tr:last-child td:nth-of-type(1)::before { content: "Summary"; font-weight: 800; }
 }

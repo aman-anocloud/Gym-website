@@ -15,6 +15,7 @@ const plans = {
 const icons = {
   dashboard: "▦",
   members: "◎",
+  renewals: "↻",
   payments: "₹",
   reports: "▤",
   reminders: "✆",
@@ -25,6 +26,7 @@ const icons = {
 const navItems = [
   ["dashboard", "Dashboard"],
   ["members", "Members"],
+  ["renewals", "Renewal Center"],
   ["payments", "Payments"],
   ["reports", "Reports"],
   ["reminders", "Reminders"],
@@ -40,6 +42,8 @@ let memberFilter = "all";
 let registrationStep = 0;
 let draftMember = defaultMemberDraft();
 let activeModal = null;
+let showNotifications = false;
+let mobileMenuOpen = false;
 
 window.addEventListener("hashchange", () => {
   view = location.hash.replace("#", "") || "dashboard";
@@ -85,12 +89,14 @@ function normalizeState(saved) {
   const hasOldDemoPrices = saved.plans?.strength?.prices?.["1"] === 1000 || saved.plans?.cardio?.prices?.["12"] === 14000;
   saved.plans = saved.plans && !hasOldDemoPrices ? saved.plans : plans;
   saved.gym = {
-    ...(saved.gym || {}),
     name: "DEV FITNESS GYM",
     phone: "9572762242",
     address: "1st Floor of Co-Operative Maintenance Office, Near SBI & BOI ATM, Bokaro Steel City, Jharkhand - 827013",
     services: ["Personal Training", "Bodybuilding", "Cardio", "Powerlifting", "Yoga", "Zumba", "Aerobics", "Weight Loss", "Weight Gain", "Supplements"],
+    ...(saved.gym || {}),
   };
+  if (saved.gym.registrationFee === undefined) saved.gym.registrationFee = 500;
+  if (!saved.gym.reminderSettings) saved.gym.reminderSettings = { daysBefore: [7, 3, 1] };
   saved.members = (saved.members || []).map((member) => {
     const next = {
       paymentStatus: member.dueOverride ? "Due" : "Paid",
@@ -245,6 +251,8 @@ function seedState() {
       phone: "9572762242",
       address: "1st Floor of Co-Operative Maintenance Office, Near SBI & BOI ATM, Bokaro Steel City, Jharkhand - 827013",
       services: ["Personal Training", "Bodybuilding", "Cardio", "Powerlifting", "Yoga", "Zumba", "Aerobics", "Weight Loss", "Weight Gain", "Supplements"],
+      registrationFee: 500,
+      reminderSettings: { daysBefore: [7, 3, 1] }
     },
     members,
     payments: [
@@ -256,6 +264,7 @@ function seedState() {
     reminders: [
       reminder("r1", "m2", "3-day", addDays(today, -1), "Sent"),
       reminder("r2", "m3", "expired", addDays(today, -3), "Sent"),
+      reminder("r3", "m1", "7-day", addDays(today, -2), "Failed"),
     ],
   };
 }
@@ -310,21 +319,67 @@ function render() {
   }
 
   const page = views[view] ? view : "dashboard";
+  const notifs = computeNotifications();
+  
   app.innerHTML = `
     <div class="app-shell">
-      <aside class="sidebar">
-        ${brand()}
+      <div class="sidebar-backdrop ${mobileMenuOpen ? "show" : ""}" data-action="close-menu"></div>
+      <aside class="sidebar ${mobileMenuOpen ? "open" : ""}">
+        <div class="sidebar-header">
+          ${brand()}
+          <button class="btn icon-only close-menu-btn" data-action="close-menu" title="Close Menu">×</button>
+        </div>
         <nav class="nav">
           ${navItems.map(([id, label]) => navButton(id, label)).join("")}
         </nav>
         <button class="btn danger" data-action="logout">↗ Logout</button>
       </aside>
-      <main class="main">
-        ${views[page]()}
-      </main>
-      <nav class="mobile-nav">
-        ${["dashboard", "members", "payments", "reports"].map((id) => mobileNavButton(id)).join("")}
-      </nav>
+      
+      <div class="main-container">
+        <header class="app-header">
+          <button class="hamburger-btn" data-action="toggle-menu" title="Open Menu">☰ Menu</button>
+          <div class="header-title">${navItems.find(([key]) => key === page)?.[1] || "Dashboard"}</div>
+          <div class="header-right">
+            <div class="notification-container">
+              <button class="notification-bell" data-action="toggle-notifications" title="Notifications">
+                🔔 ${notifs.total > 0 ? `<span class="bell-badge">${notifs.total}</span>` : ""}
+              </button>
+              <div class="notification-dropdown ${showNotifications ? "show" : ""}">
+                <div class="dropdown-header">Notifications</div>
+                <div class="dropdown-body">
+                  <div class="notification-item ${notifs.due > 0 ? "due" : ""}" data-go="renewals" data-tab="due">
+                    <span class="icon">🔴</span>
+                    <div>
+                      <strong>${notifs.due} Pending Dues</strong>
+                      <p>Members awaiting payment</p>
+                    </div>
+                  </div>
+                  <div class="notification-item ${notifs.expiring > 0 ? "expiring" : ""}" data-go="renewals" data-tab="this-week">
+                    <span class="icon">🟠</span>
+                    <div>
+                      <strong>${notifs.expiring} Expiring Soon</strong>
+                      <p>Renewals due in next 7 days</p>
+                    </div>
+                  </div>
+                  <div class="notification-item ${notifs.failed > 0 ? "failed" : ""}" data-go="reminders">
+                    <span class="icon">❌</span>
+                    <div>
+                      <strong>${notifs.failed} Failed Reminders</strong>
+                      <p>WhatsApp reminders failed</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button class="btn primary add-member-quick-btn" data-go="new-member">+ Add Member</button>
+          </div>
+        </header>
+        
+        <main class="main">
+          ${views[page]()}
+        </main>
+      </div>
+      
       ${modalMarkup()}
     </div>
   `;
@@ -334,24 +389,26 @@ function render() {
 }
 
 function brand() {
+  const gymName = state?.gym?.name || "DEV FITNESS GYM";
+  const address = state?.gym?.address || "Bokaro Steel City";
+  const parts = address.split(",");
+  const cityPart = parts.length > 1 ? parts[parts.length - 2].trim() : "Bokaro Steel City";
+  const words = gymName.split(/\s+/);
+  const mark = words.map(w => w[0]).join("").slice(0, 2).toUpperCase();
+
   return `
     <div class="brand-lockup">
-      <div class="brand-mark">DF</div>
+      <div class="brand-mark">${mark}</div>
       <div>
-        <h1 class="brand-title">DEV FITNESS GYM</h1>
-        <p class="brand-subtitle">Bokaro Steel City</p>
+        <h1 class="brand-title">${escapeHtml(gymName)}</h1>
+        <p class="brand-subtitle">${escapeHtml(cityPart)}</p>
       </div>
     </div>
   `;
 }
 
 function navButton(id, label) {
-  return `<button class="${view === id ? "active" : ""}" data-go="${id}"><span class="icon">${icons[id]}</span>${label}</button>`;
-}
-
-function mobileNavButton(id) {
-  const item = navItems.find(([key]) => key === id);
-  return `<button class="${view === id ? "active" : ""}" data-go="${id}"><span>${icons[id]}</span><span>${item[1]}</span></button>`;
+  return `<button class="${view === id ? "active" : ""}" data-go="${id}"><span class="icon">${icons[id] || "◆"}</span>${label}</button>`;
 }
 
 function renderLogin() {
@@ -409,6 +466,11 @@ function attachCommonEvents() {
   document.querySelectorAll("[data-go]").forEach((button) => {
     button.addEventListener("click", () => {
       location.hash = button.dataset.go;
+      mobileMenuOpen = false;
+      showNotifications = false;
+      if (button.dataset.tab) {
+        sessionStorage.setItem("renewals-active-tab", button.dataset.tab);
+      }
     });
   });
   document.querySelector('[data-action="logout"]')?.addEventListener("click", () => {
@@ -417,6 +479,32 @@ function attachCommonEvents() {
   });
   document.querySelectorAll("[data-close-modal]").forEach((button) => {
     button.addEventListener("click", closeModal);
+  });
+  
+  document.querySelector('[data-action="toggle-menu"]')?.addEventListener("click", () => {
+    mobileMenuOpen = !mobileMenuOpen;
+    showNotifications = false;
+    render();
+  });
+  document.querySelectorAll('[data-action="close-menu"]').forEach((el) => {
+    el.addEventListener("click", () => {
+      mobileMenuOpen = false;
+      render();
+    });
+  });
+  
+  document.querySelector('[data-action="toggle-notifications"]')?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    showNotifications = !showNotifications;
+    render();
+  });
+  
+  document.addEventListener("click", (e) => {
+    if (showNotifications && !e.target.closest(".notification-container")) {
+      showNotifications = false;
+      const dropdown = document.querySelector(".notification-dropdown");
+      if (dropdown) dropdown.classList.remove("show");
+    }
   });
 }
 
@@ -459,8 +547,34 @@ function daysToExpiry(expiryDate) {
   return Math.ceil((expiry - today) / 86400000);
 }
 
+function getDuesAmount(member) {
+  if (member.paymentStatus !== "Due" && !member.dueOverride) return 0;
+  const lastMs = member.memberships?.[member.memberships.length - 1];
+  if (!lastMs) return 500;
+  
+  const periodPayments = state.payments
+    .filter(p => p.memberId === member.id && p.date >= lastMs.startDate)
+    .reduce((sum, p) => sum + Number(p.amount), 0);
+  
+  const due = lastMs.totalAmount - periodPayments;
+  return due > 0 ? due : lastMs.totalAmount;
+}
+
+function computeNotifications() {
+  const activeDuesCount = state.members.filter(m => statusOf(m) === "Due").length;
+  const expiringSoonCount = state.members.filter(m => statusOf(m) === "Expiring Soon").length;
+  const failedRemindersCount = state.reminders.filter(r => r.status === "Failed").length;
+  
+  return {
+    due: activeDuesCount,
+    expiring: expiringSoonCount,
+    failed: failedRemindersCount,
+    total: activeDuesCount + expiringSoonCount + failedRemindersCount
+  };
+}
+
 function statusBadge(status) {
-  const key = status.toLowerCase();
+  const key = status.toLowerCase().replace(/\s+/g, "-");
   return `<span class="badge ${key}">${status}</span>`;
 }
 
@@ -469,10 +583,13 @@ function statCards() {
   return `
     <div class="grid stats-grid">
       ${stat("Total Members", stats.total)}
-      ${stat("Active", stats.active)}
-      ${stat("Due", stats.due)}
+      ${stat("Active Members", stats.active)}
+      ${stat("Due Payments", stats.due)}
       ${stat("Expiring Soon", stats.expiring)}
-      ${stat("Expired", stats.expired)}
+      ${stat("Expired Members", stats.expired)}
+      ${stat("Revenue This Year", money(stats.revenueThisYear))}
+      ${stat("Renewals This Month", stats.renewalsThisMonth)}
+      ${stat("Pending Reminders", stats.pendingReminders)}
     </div>
   `;
 }
@@ -490,7 +607,32 @@ function computeStats() {
     if (status === "expiring soon") counts.expiring += 1;
     if (status === "expired") counts.expired += 1;
   });
-  return counts;
+  
+  const currentYear = todayISO().slice(0, 4);
+  const revenueThisYear = state.payments
+    .filter(p => p.date.startsWith(currentYear))
+    .reduce((sum, p) => sum + Number(p.amount), 0);
+    
+  const currentMonth = todayISO().slice(0, 7);
+  const renewalsThisMonth = state.members
+    .filter(m => m.expiryDate.slice(0, 7) === currentMonth)
+    .length;
+    
+  const pendingReminders = state.members.filter(member => {
+    const status = statusOf(member);
+    if (status === "Due" || status === "Expired" || status === "Expiring Soon") {
+      const sentToday = state.reminders.some(r => r.memberId === member.id && r.sentAt === todayISO());
+      return !sentToday;
+    }
+    return false;
+  }).length;
+  
+  return {
+    ...counts,
+    revenueThisYear,
+    renewalsThisMonth,
+    pendingReminders
+  };
 }
 
 const views = {
@@ -498,38 +640,92 @@ const views = {
     const today = todayISO();
     const recentPayments = [...state.payments].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 8);
     const recentRegistrations = [...state.members].sort((a, b) => b.registeredAt.localeCompare(a.registeredAt)).slice(0, 5);
+    
     const upcoming = state.members
       .filter((member) => daysToExpiry(member.expiryDate) >= 0 && daysToExpiry(member.expiryDate) <= 7)
       .sort((a, b) => a.expiryDate.localeCompare(b.expiryDate));
+      
     const todayCollection = state.payments.filter((p) => p.date === today).reduce((sum, p) => sum + Number(p.amount), 0);
     const month = today.slice(0, 7);
     const monthlyCollection = state.payments.filter((p) => p.date.startsWith(month)).reduce((sum, p) => sum + Number(p.amount), 0);
 
     return `
-      ${pageHeader("Dashboard", "Daily collections, renewals, and member risk in one place.", `<button class="btn primary" data-go="new-member">+ Add Member</button>`)}
       ${statCards()}
+      ${quickActionsSection()}
       <div class="grid two-col" style="margin-top:16px">
         <section class="card pad">
-          <div class="section-head"><h2>Collections</h2><span class="money">${money(monthlyCollection)} this month</span></div>
-          <div class="grid three-col">
-            ${stat("Today", money(todayCollection))}
-            ${stat("Monthly", money(monthlyCollection))}
-            ${stat("Payments", state.payments.length)}
+          <div class="section-head">
+            <h2>Monthly Revenue Trend</h2>
+            <span class="money">${money(monthlyCollection)} this month</span>
           </div>
-          <div class="mini-chart">${monthlyBars()}</div>
+          ${monthlyRevenueTrendChart()}
         </section>
+        ${memberRiskWidget()}
+      </div>
+      
+      <div class="grid two-col" style="margin-top:16px">
         <section class="card pad">
-          <div class="section-head"><h2>Upcoming Expiries</h2><button class="btn" data-go="members">View Members</button></div>
+          <div class="section-head"><h2>Upcoming Expiries</h2><button class="btn" data-go="renewals">Renewal Center</button></div>
           ${memberMiniTable(upcoming, "No memberships expiring in the next 7 days.")}
         </section>
+        <section class="card pad">
+          <div class="section-head"><h2>Recent Registrations</h2><button class="btn" data-go="members">View Register</button></div>
+          ${memberMiniTable(recentRegistrations, "No registrations yet.")}
+        </section>
       </div>
+      
       <section class="card pad" style="margin-top:16px">
         <div class="section-head"><h2>Recent Payments</h2><button class="btn" data-go="payments">Ledger</button></div>
         ${paymentTable(recentPayments)}
       </section>
-      <section class="card pad" style="margin-top:16px">
-        <div class="section-head"><h2>Recent Registrations</h2><button class="btn" data-go="members">Members</button></div>
-        ${memberMiniTable(recentRegistrations, "No registrations yet.")}
+    `;
+  },
+  
+  renewals() {
+    const activeTab = sessionStorage.getItem("renewals-active-tab") || "today";
+    
+    const expiredMembers = state.members
+      .filter((member) => daysToExpiry(member.expiryDate) < 0)
+      .sort((a, b) => b.expiryDate.localeCompare(a.expiryDate));
+      
+    const dueTodayMembers = state.members
+      .filter((member) => daysToExpiry(member.expiryDate) === 0)
+      .sort((a, b) => a.name.localeCompare(b.name));
+      
+    const dueThisWeekMembers = state.members
+      .filter((member) => {
+        const days = daysToExpiry(member.expiryDate);
+        return days > 0 && days <= 7;
+      })
+      .sort((a, b) => a.expiryDate.localeCompare(b.expiryDate));
+      
+    const counts = {
+      today: dueTodayMembers.length,
+      week: dueThisWeekMembers.length,
+      expired: expiredMembers.length
+    };
+    
+    let activeMembers = [];
+    if (activeTab === "today") activeMembers = dueTodayMembers;
+    else if (activeTab === "this-week") activeMembers = dueThisWeekMembers;
+    else if (activeTab === "expired") activeMembers = expiredMembers;
+    
+    return `
+      ${pageHeader("Renewal Center", "Track memberships expiring today, this week, and already expired.")}
+      <div class="tabs renewal-tabs">
+        <button class="tab ${activeTab === "today" ? "active" : ""}" data-action="renewals-tab" data-tab="today">
+          🔴 Today (${counts.today})
+        </button>
+        <button class="tab ${activeTab === "this-week" ? "active" : ""}" data-action="renewals-tab" data-tab="this-week">
+          🟠 This Week (${counts.week})
+        </button>
+        <button class="tab ${activeTab === "expired" ? "active" : ""}" data-action="renewals-tab" data-tab="expired">
+          ⚫ Expired (${counts.expired})
+        </button>
+      </div>
+      
+      <section class="card pad">
+        ${renderRenewalList(activeMembers, activeTab)}
       </section>
     `;
   },
@@ -705,6 +901,12 @@ const views = {
   },
 
   settings() {
+    const regFee = state.gym.registrationFee !== undefined ? state.gym.registrationFee : 500;
+    const reminderSettings = state.gym.reminderSettings || { daysBefore: [7, 3, 1] };
+    const has7 = reminderSettings.daysBefore.includes(7);
+    const has3 = reminderSettings.daysBefore.includes(3);
+    const has1 = reminderSettings.daysBefore.includes(1);
+    
     return `
       ${pageHeader("Settings", "Single-admin credentials, WhatsApp configuration, and gym identity.")}
       <div class="grid two-col">
@@ -716,17 +918,35 @@ const views = {
             <button class="btn primary" type="submit">✓ Change Password</button>
           </form>
         </section>
+        
         <section class="card pad">
-          <div class="section-head"><h2>Gym Info</h2></div>
-          <div class="detail-list">
-            ${detail("Name", state.gym.name)}
-            ${detail("Phone", state.gym.phone)}
-            ${detail("Address", state.gym.address)}
-            ${detail("Reminder Cron", state.reminderEnabled ? "Enabled at 9:00 AM" : "Disabled")}
-          </div>
-          <div class="service-list">${state.gym.services.map((service) => `<span>${service}</span>`).join("")}</div>
-          <button class="btn" style="margin-top:14px" data-action="toggle-reminders">${state.reminderEnabled ? "Disable" : "Enable"} Reminders</button>
+          <div class="section-head"><h2>Gym Info & Dues</h2></div>
+          <form id="gymInfoForm" class="stack">
+            <label class="field"><span>Gym Name</span><input name="name" value="${escapeHtml(state.gym.name)}" required /></label>
+            <label class="field"><span>Phone</span><input name="phone" pattern="[0-9]{10}" value="${escapeHtml(state.gym.phone)}" required /></label>
+            <label class="field"><span>Address</span><input name="address" value="${escapeHtml(state.gym.address)}" required /></label>
+            <label class="field"><span>Registration Fee (Rs.)</span><input name="registrationFee" type="number" min="0" value="${regFee}" required /></label>
+            
+            <div class="stack-tight">
+              <span class="label">Auto Reminder Settings</span>
+              <div class="option-row">
+                <label class="choice"><input type="checkbox" name="remind7" ${has7 ? "checked" : ""} /> 7 Days</label>
+                <label class="choice"><input type="checkbox" name="remind3" ${has3 ? "checked" : ""} /> 3 Days</label>
+                <label class="choice"><input type="checkbox" name="remind1" ${has1 ? "checked" : ""} /> 1 Day</label>
+              </div>
+            </div>
+            
+            <button class="btn primary" type="submit">✓ Save Settings</button>
+          </form>
         </section>
+        
+        <section class="card pad">
+          <div class="section-head"><h2>Cron & Services</h2></div>
+          <p><strong>Reminder Cron Status:</strong> ${state.reminderEnabled ? "Enabled (Runs daily at 9:00 AM)" : "Disabled"}</p>
+          <div class="service-list">${state.gym.services.map((service) => `<span>${service}</span>`).join("")}</div>
+          <button class="btn" style="margin-top:14px" data-action="toggle-reminders">${state.reminderEnabled ? "Disable Auto" : "Enable Auto"} Reminders</button>
+        </section>
+        
         <section class="card pad">
           <div class="section-head"><h2>Data Backup</h2></div>
           <p class="muted">Export the full local database as JSON, or restore a previous DEV FITNESS backup file.</p>
@@ -744,7 +964,27 @@ const views = {
 };
 
 const pageEvents = {
-  dashboard() {},
+  dashboard() {
+    bindMemberActions();
+    document.querySelector('[data-action="quick-payment"]')?.addEventListener("click", () => {
+      openPaymentPrompt();
+    });
+    document.querySelector('[data-action="quick-renew"]')?.addEventListener("click", () => {
+      openRenewModal();
+    });
+    document.querySelector('[data-action="quick-reminder"]')?.addEventListener("click", () => {
+      runReminderJob();
+    });
+  },
+  renewals() {
+    document.querySelectorAll('[data-action="renewals-tab"]').forEach((btn) => {
+      btn.addEventListener("click", () => {
+        sessionStorage.setItem("renewals-active-tab", btn.dataset.tab);
+        render();
+      });
+    });
+    bindMemberActions();
+  },
   members() {
     document.querySelector("#memberSearch").addEventListener("input", render);
     document.querySelector("#statusFilter").addEventListener("change", (event) => {
@@ -828,6 +1068,25 @@ const pageEvents = {
       event.currentTarget.reset();
       toast("Password changed");
     });
+    document.querySelector("#gymInfoForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const form = new FormData(event.currentTarget);
+      
+      state.gym.name = form.get("name").trim();
+      state.gym.phone = form.get("phone").trim();
+      state.gym.address = form.get("address").trim();
+      state.gym.registrationFee = Number(form.get("registrationFee"));
+      
+      const daysBefore = [];
+      if (form.has("remind7")) daysBefore.push(7);
+      if (form.has("remind3")) daysBefore.push(3);
+      if (form.has("remind1")) daysBefore.push(1);
+      state.gym.reminderSettings = { daysBefore };
+      
+      saveState();
+      render();
+      toast("Gym settings saved");
+    });
     document.querySelector('[data-action="toggle-reminders"]').addEventListener("click", () => {
       state.reminderEnabled = !state.reminderEnabled;
       saveState();
@@ -893,17 +1152,32 @@ function paymentModal(member) {
 }
 
 function renewModal(member) {
-  const duration = member.durationMonths === "custom" ? "1" : member.durationMonths;
-  const amount = state.plans[member.planKey]?.prices[duration] || 1000;
-  const startBase = daysToExpiry(member.expiryDate) > 0 ? member.expiryDate : todayISO();
+  const isGeneral = !activeModal.memberId;
+  const targetMember = isGeneral ? state.members[0] : member;
+  if (!targetMember) return `<div class="pad">No members available to renew.</div>`;
+  
+  const duration = targetMember.durationMonths === "custom" ? "1" : targetMember.durationMonths;
+  const amount = state.plans[targetMember.planKey]?.prices[duration] || 1000;
+  const startBase = daysToExpiry(targetMember.expiryDate) > 0 ? targetMember.expiryDate : todayISO();
+  
   return `
     <form id="renewForm" class="stack">
-      <div class="member-summary">
-        <strong>${member.memberNo} · ${member.name}</strong>
-        <span>${planName(member)} expires ${formatDate(member.expiryDate)}</span>
-      </div>
+      ${isGeneral ? `
+        <label class="field">
+          <span>Select Member</span>
+          <select name="memberId" id="renewMemberSelect" required>
+            ${state.members.map((item) => `<option value="${item.id}">${item.memberNo} · ${item.name} (Expires ${formatDate(item.expiryDate)})</option>`).join("")}
+          </select>
+        </label>
+      ` : `
+        <div class="member-summary">
+          <strong>${targetMember.memberNo} · ${targetMember.name}</strong>
+          <span>${planName(targetMember)} expires ${formatDate(targetMember.expiryDate)}</span>
+        </div>
+        <input type="hidden" name="memberId" value="${targetMember.id}" />
+      `}
       <div class="form-grid">
-        ${selectPlain("Plan", "planKey", [["strength", "Strength"], ["cardio", "Strength + Cardio"]], member.planKey === "custom" ? "strength" : member.planKey)}
+        ${selectPlain("Plan", "planKey", [["strength", "Strength"], ["cardio", "Strength + Cardio"]], targetMember.planKey === "custom" ? "strength" : targetMember.planKey)}
         ${selectPlain("Duration", "duration", [["1", "1 Month"], ["3", "3 Months"], ["6", "6 Months"], ["12", "12 Months"]], duration)}
         <label class="field"><span>Start Date</span><input name="startDate" type="date" value="${startBase}" required /></label>
         <label class="field"><span>Payment Amount</span><input name="amount" type="number" min="1" value="${amount}" required /></label>
@@ -956,6 +1230,26 @@ function bindModalEvents() {
   document.querySelector("#editMemberForm")?.addEventListener("submit", submitEditMemberForm);
   document.querySelector("#renewForm select[name='planKey']")?.addEventListener("change", updateRenewAmount);
   document.querySelector("#renewForm select[name='duration']")?.addEventListener("change", updateRenewAmount);
+  
+  document.querySelector("#renewMemberSelect")?.addEventListener("change", (e) => {
+    const selectedId = e.target.value;
+    const member = getMember(selectedId);
+    if (member) {
+      const form = document.querySelector("#renewForm");
+      const durationSelect = form.querySelector("select[name='duration']");
+      const planSelect = form.querySelector("select[name='planKey']");
+      const startInput = form.querySelector("input[name='startDate']");
+      
+      const duration = member.durationMonths === "custom" ? "1" : member.durationMonths;
+      planSelect.value = member.planKey === "custom" ? "strength" : member.planKey;
+      durationSelect.value = duration;
+      
+      const startBase = daysToExpiry(member.expiryDate) > 0 ? member.expiryDate : todayISO();
+      startInput.value = startBase;
+      
+      updateRenewAmount();
+    }
+  });
 }
 
 function submitPaymentForm(event) {
@@ -1149,7 +1443,8 @@ function calculatedAmount() {
   let base = 0;
   if (draftMember.planKey === "custom" || draftMember.durationMonths === "custom") base = Number(draftMember.customAmount || 0);
   else base = Number(state.plans[draftMember.planKey]?.prices[draftMember.durationMonths] || 0);
-  return base + (draftMember.waiveRegistration ? 0 : 500);
+  const regFee = state.gym.registrationFee !== undefined ? Number(state.gym.registrationFee) : 500;
+  return base + (draftMember.waiveRegistration ? 0 : regFee);
 }
 
 async function saveMemberFromDraft(formElement) {
@@ -1160,7 +1455,7 @@ async function saveMemberFromDraft(formElement) {
   const membershipAmount = draftMember.planKey === "custom" || draftMember.durationMonths === "custom"
     ? Number(draftMember.customAmount || 0)
     : Number(state.plans[draftMember.planKey]?.prices[draftMember.durationMonths] || 0);
-  const registrationFee = draftMember.waiveRegistration ? 0 : 500;
+  const registrationFee = draftMember.waiveRegistration ? 0 : (state.gym.registrationFee !== undefined ? Number(state.gym.registrationFee) : 500);
   const member = {
     id: uid(),
     memberNo: `DEV-${String(state.nextMemberNumber).padStart(4, "0")}`,
@@ -1259,8 +1554,22 @@ function memberMiniTable(members, empty) {
   return `
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Member</th><th>Expiry</th><th>Status</th></tr></thead>
-        <tbody>${members.map((member) => `<tr><td>${member.name}</td><td>${formatDate(member.expiryDate)}</td><td>${statusBadge(statusOf(member))}</td></tr>`).join("")}</tbody>
+        <thead><tr><th>Member</th><th>Plan</th><th>Expiry</th><th>Status</th></tr></thead>
+        <tbody>
+          ${members.map((member) => `
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <div class="avatar-tiny">${member.photo ? `<img src="${member.photo}" />` : initials(member.name)}</div>
+                  <strong>${member.name}</strong>
+                </div>
+              </td>
+              <td>${planName(member)}</td>
+              <td>${formatDate(member.expiryDate)}</td>
+              <td>${expiryStatusBadge(member.expiryDate)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
       </table>
     </div>
   `;
@@ -1555,12 +1864,186 @@ function restoreBackup(event) {
   reader.readAsText(file);
 }
 
-function monthlyBars() {
-  const month = todayISO().slice(0, 7);
-  const days = Array.from({ length: 10 }, (_, index) => String(index + 1).padStart(2, "0"));
-  const totals = days.map((day) => state.payments.filter((payment) => payment.date === `${month}-${day}`).reduce((sum, payment) => sum + Number(payment.amount), 0));
-  const max = Math.max(...totals, 1);
-  return totals.map((total) => `<div class="bar" title="${money(total)}" style="height:${Math.max(7, (total / max) * 100)}%"></div>`).join("");
+function quickActionsSection() {
+  return `
+    <section class="card pad quick-actions-card" style="margin-top:16px">
+      <div class="section-head"><h2>Quick Actions</h2></div>
+      <div class="quick-actions-grid">
+        <button class="btn quick-action-btn" data-go="new-member">
+          <span class="icon">➕</span>
+          <span>Add Member</span>
+        </button>
+        <button class="btn quick-action-btn" data-action="quick-payment">
+          <span class="icon">₹</span>
+          <span>Add Payment</span>
+        </button>
+        <button class="btn quick-action-btn" data-action="quick-renew">
+          <span class="icon">↻</span>
+          <span>Renew Membership</span>
+        </button>
+        <button class="btn quick-action-btn" data-action="quick-reminder">
+          <span class="icon">✆</span>
+          <span>Send Reminder</span>
+        </button>
+      </div>
+    </section>
+  `;
+}
+
+function memberRiskWidget() {
+  const dueMembers = state.members.filter(m => statusOf(m) === "Due" || m.paymentStatus === "Due" || m.dueOverride);
+  
+  let rowsHtml = "";
+  if (!dueMembers.length) {
+    rowsHtml = `<div class="empty">No members with outstanding dues.</div>`;
+  } else {
+    rowsHtml = `
+      <ul class="risk-list">
+        ${dueMembers.map(member => {
+          const dues = getDuesAmount(member);
+          return `
+            <li class="risk-item">
+              <div class="user-cell">
+                <div class="avatar-tiny">${member.photo ? `<img src="${member.photo}" />` : initials(member.name)}</div>
+                <div>
+                  <strong>${member.name}</strong>
+                  <span class="risk-subtext">${member.memberNo} · ${member.phoneDay}</span>
+                </div>
+              </div>
+              <div class="risk-actions">
+                <span class="due-amount">${money(dues)} Due</span>
+                <button class="btn icon-only" title="Record Payment" data-action="add-payment" data-id="${member.id}">₹</button>
+                <a class="btn icon-only" title="Call/WhatsApp Dues Reminder" href="https://wa.me/91${member.phoneDay}?text=Hi%20${encodeURIComponent(member.name)},%20this%20is%20a%20friendly%20reminder%20that%20your%20membership%20payment%20of%20Rs.%20${dues}%20is%20pending.%20Please%20clear%20it%20at%20the%20earliest.%20Thank%20you!" target="_blank">✆</a>
+              </div>
+            </li>
+          `;
+        }).join("")}
+      </ul>
+    `;
+  }
+  
+  return `
+    <section class="card pad risk-widget-card">
+      <div class="section-head">
+        <h2>Members With Dues</h2>
+        <span class="badge due">${dueMembers.length} Risk</span>
+      </div>
+      ${rowsHtml}
+    </section>
+  `;
+}
+
+function monthlyRevenueTrendChart() {
+  const monthsList = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const monthKey = d.toISOString().slice(0, 7);
+    const label = d.toLocaleDateString("en-US", { month: "short" });
+    monthsList.push({ key: monthKey, label });
+  }
+  
+  const totals = monthsList.map((month) => {
+    const amount = state.payments
+      .filter((payment) => payment.date.startsWith(month.key))
+      .reduce((sum, payment) => sum + Number(payment.amount), 0);
+    return { ...month, amount };
+  });
+  
+  const max = Math.max(...totals.map(t => t.amount), 1);
+  
+  return `
+    <div class="trend-chart-container">
+      <div class="trend-bars">
+        ${totals.map((t) => `
+          <div class="trend-bar-wrapper">
+            <div class="trend-bar-label-top">${money(t.amount)}</div>
+            <div class="bar trend-bar" title="${t.label}: ${money(t.amount)}" style="height:${Math.max(8, (t.amount / max) * 100)}%"></div>
+            <div class="trend-bar-label-bottom">${t.label}</div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function expiryStatusBadge(expiryDate) {
+  const days = daysToExpiry(expiryDate);
+  if (days < 0) {
+    return `<span class="badge expired">⚫ Expired (${Math.abs(days)}d ago)</span>`;
+  }
+  if (days === 0) {
+    return `<span class="badge due">🔴 Today</span>`;
+  }
+  if (days <= 3) {
+    return `<span class="badge expiring-soon" style="background:#feefe3;color:#b06000;">🟠 ${days} Days</span>`;
+  }
+  if (days <= 7) {
+    return `<span class="badge expiring-soon" style="background:#fef7e0;color:#b06000;">🟡 ${days} Days</span>`;
+  }
+  return `<span class="badge active">🟢 ${days} Days</span>`;
+}
+
+function renderRenewalList(members, activeTab) {
+  if (!members.length) {
+    let msg = "No renewals due today! 🎉";
+    if (activeTab === "this-week") msg = "No renewals due this week! 🎉";
+    if (activeTab === "expired") msg = "No expired memberships found! 🎉";
+    return `<div class="empty">${msg}</div>`;
+  }
+  
+  return `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Phone</th>
+            <th>Plan</th>
+            <th>Expiry Date</th>
+            <th>Dues / Status</th>
+            <th style="text-align:right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${members.map((member) => {
+            const days = daysToExpiry(member.expiryDate);
+            const dues = getDuesAmount(member);
+            const whatsappText = `Hi%20${encodeURIComponent(member.name)},%20your%20membership%20at%20DEV%20FITNESS%20GYM%20expires%20on%20${formatDate(member.expiryDate)}.%20Please%20renew%20to%20continue%20your%20sessions.%20Thank%20you!`;
+            return `
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <div class="avatar-tiny">${member.photo ? `<img src="${member.photo}" />` : initials(member.name)}</div>
+                    <div>
+                      <strong>${member.name}</strong>
+                      <span class="muted text-xs block">${member.memberNo}</span>
+                    </div>
+                  </div>
+                </td>
+                <td>${member.phoneDay}</td>
+                <td>${planName(member)}</td>
+                <td>${formatDate(member.expiryDate)}</td>
+                <td>
+                  <div class="stack-tight">
+                    ${expiryStatusBadge(member.expiryDate)}
+                    ${dues > 0 ? `<span class="badge due" style="margin-top:4px">${money(dues)} Pending</span>` : ""}
+                  </div>
+                </td>
+                <td style="text-align:right">
+                  <div class="actions" style="justify-content:flex-end">
+                    <button class="btn primary" data-action="renew" data-id="${member.id}">↻ Renew</button>
+                    <button class="btn" data-action="manual-reminder" data-id="${member.id}">✆ Notify</button>
+                    <a class="btn icon-only" title="Direct WhatsApp Chat" href="https://wa.me/91${member.phoneDay}?text=${whatsappText}" target="_blank">💬</a>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 
 function planName(member) {

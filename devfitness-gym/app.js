@@ -1170,7 +1170,16 @@ const views = {
 
   payments() {
     return `
-      ${pageHeader("Payment Ledger", "Append-only financial record with filters and CSV export.", `<button class="btn primary" data-action="open-payment-global">+ Add Payment</button><button class="btn" data-action="export-payments">CSV</button><button class="btn" data-action="export-payments-xls">Excel</button><button class="btn" data-action="export-payments-pdf">PDF</button>`)}
+      ${pageHeader("Payment Ledger", "Append-only financial record with filters and CSV export.", `
+        <div class="export-group-wrap">
+          <button class="btn primary full-mob" data-action="open-payment-global">+ Add Payment</button>
+          <div class="export-group">
+            <button class="btn" data-action="export-payments">CSV</button>
+            <button class="btn" data-action="export-payments-xls">XLS</button>
+            <button class="btn" data-action="export-payments-pdf">PDF</button>
+          </div>
+        </div>
+      `)}
       <section class="card pad">
         <div class="filters">
           <input id="paymentSearch" placeholder="Search member or remarks" />
@@ -1975,7 +1984,7 @@ function paymentTable(payments) {
             const member = getMember(payment.memberId);
             return `<tr><td><strong>${shortId(payment.id)}</strong></td><td>${formatDate(payment.date)}</td><td>${member?.name || "Unknown"}</td><td class="money">${money(payment.amount)}</td><td>${payment.mode}</td><td>${payment.remarks || "-"}</td></tr>`;
           }).join("")}
-          <tr><td colspan="3"><strong>Total</strong></td><td class="money">${money(total)}</td><td colspan="2"></td></tr>
+          <tr class="summary-row"><td colspan="3"><strong style="text-transform:uppercase; font-size: 0.85rem; letter-spacing:1px; opacity:0.9">Total Collected</strong></td><td class="money" style="font-size: 1.5rem">${money(total)}</td><td colspan="2"></td></tr>
         </tbody>
       </table>
     </div>

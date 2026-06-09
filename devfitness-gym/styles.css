@@ -239,6 +239,20 @@ textarea:focus {
   align-items: center;
 }
 
+.export-group-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.export-group {
+  display: flex;
+  gap: 6px;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -1125,6 +1139,27 @@ tr:last-child td {
     margin-bottom: 10px;
   }
 
+  .export-group-wrap {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .export-group-wrap .full-mob {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+
+  .export-group {
+    flex: 1 1 100%;
+  }
+
+  .export-group .btn {
+    flex: 1;
+    justify-content: center;
+    padding: 8px 4px;
+    font-size: 0.8rem;
+  }
+
   .main {
     padding: 16px 14px;
   }
@@ -1133,9 +1168,18 @@ tr:last-child td {
     grid-template-columns: 1fr;
   }
 
-  .form-grid,
-  .filters {
+  .form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .filters {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-flow: row dense;
+  }
+  
+  .filters input:first-child, 
+  .filters select:first-child {
+    grid-column: 1 / -1;
   }
 
   .add-member-quick-btn {
@@ -1149,7 +1193,7 @@ tr:last-child td {
 
   #paymentLedger table,
   #paymentLedger tbody,
-  #paymentLedger tr,
+  #paymentLedger tr:not(.summary-row),
   #paymentLedger td {
     display: block;
     width: 100%;
@@ -1159,13 +1203,13 @@ tr:last-child td {
     display: none;
   }
   
-  #paymentLedger tr {
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 8px;
+  #paymentLedger tr:not(.summary-row) {
+    background: #0d0d0f;
+    border: 1px solid #1a1a1a;
+    border-radius: 6px;
     padding: 12px;
     margin-bottom: 12px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
   }
   
   #paymentLedger td {
@@ -1175,13 +1219,52 @@ tr:last-child td {
     border: 0;
     padding-top: 8px;
     padding-bottom: 8px;
-    border-bottom: 1px solid var(--soft);
+    border-bottom: 1px solid #1a1a1a;
     min-height: 36px;
     box-sizing: border-box;
   }
   
-  #paymentLedger tr td:last-child {
+  #paymentLedger tr:not(.summary-row) td:last-child {
     border-bottom: 0;
+  }
+  
+  #paymentLedger tr.summary-row {
+    display: flex !important;
+    width: 100%;
+    background: #e60000 !important;
+    border: none !important;
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin-bottom: 0;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 20px rgba(230, 0, 0, 0.4);
+  }
+
+  #paymentLedger tr.summary-row td {
+    display: block;
+    width: auto !important;
+    padding: 0 !important;
+    border: 0 !important;
+    min-height: auto !important;
+    color: #ffffff !important;
+    background: transparent !important;
+    text-align: left;
+    font-weight: 900;
+  }
+
+  #paymentLedger tr.summary-row td::before {
+    display: none !important;
+  }
+
+  #paymentLedger tr.summary-row td:empty {
+    display: none !important;
+  }
+  
+  #paymentLedger tr.summary-row .money {
+    font-size: 1.4rem !important;
+    color: #fff !important;
+    text-align: right;
   }
   
   #paymentLedger td::before {

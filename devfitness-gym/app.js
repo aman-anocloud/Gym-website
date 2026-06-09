@@ -13,14 +13,14 @@ const plans = {
 };
 
 const icons = {
-  dashboard: "▦",
-  members: "◎",
-  renewals: "↻",
+  dashboard: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>`,
+  members: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`,
+  renewals: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.21l5.64-5.64"/></svg>`,
   payments: "₹",
-  reports: "▤",
-  reminders: "✆",
-  plans: "◆",
-  settings: "⚙",
+  reports: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>`,
+  reminders: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>`,
+  plans: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>`,
+  settings: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>`,
 };
 
 const navItems = [
@@ -337,32 +337,35 @@ function render() {
       
       <div class="main-container">
         <header class="app-header">
-          <button class="hamburger-btn" data-action="toggle-menu" title="Open Menu">☰ Menu</button>
+          <button class="hamburger-btn" data-action="toggle-menu" title="Open Menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
           <div class="header-title">${navItems.find(([key]) => key === page)?.[1] || "Dashboard"}</div>
           <div class="header-right">
             <div class="notification-container">
               <button class="notification-bell" data-action="toggle-notifications" title="Notifications">
-                🔔 ${notifs.total > 0 ? `<span class="bell-badge">${notifs.total}</span>` : ""}
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 22a2 2 0 0 0 2-2H10a2 2 0 0 0 2 2zm6-6V11a6 6 0 0 0-5-5.91V4a1 1 0 0 0-2 0v1.09A6 6 0 0 0 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                ${notifs.total > 0 ? `<span class="bell-badge">${notifs.total}</span>` : ""}
               </button>
               <div class="notification-dropdown ${showNotifications ? "show" : ""}">
                 <div class="dropdown-header">Notifications</div>
                 <div class="dropdown-body">
                   <div class="notification-item ${notifs.due > 0 ? "due" : ""}" data-go="renewals" data-tab="due">
-                    <span class="icon">🔴</span>
+                    <span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
                     <div>
                       <strong>${notifs.due} Pending Dues</strong>
                       <p>Members awaiting payment</p>
                     </div>
                   </div>
                   <div class="notification-item ${notifs.expiring > 0 ? "expiring" : ""}" data-go="renewals" data-tab="this-week">
-                    <span class="icon">🟠</span>
+                    <span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
                     <div>
                       <strong>${notifs.expiring} Expiring Soon</strong>
                       <p>Renewals due in next 7 days</p>
                     </div>
                   </div>
                   <div class="notification-item ${notifs.failed > 0 ? "failed" : ""}" data-go="reminders">
-                    <span class="icon">❌</span>
+                    <span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></span>
                     <div>
                       <strong>${notifs.failed} Failed Reminders</strong>
                       <p>WhatsApp reminders failed</p>
@@ -393,18 +396,30 @@ function brand() {
   const address = state?.gym?.address || "Bokaro Steel City";
   const parts = address.split(",");
   const cityPart = parts.length > 1 ? parts[parts.length - 2].trim() : "Bokaro Steel City";
-  const words = gymName.split(/\s+/);
-  const mark = words.map(w => w[0]).join("").slice(0, 2).toUpperCase();
+
+  const svgMark = `
+    <svg width="40" height="20" viewBox="0 0 80 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M 4 5 L 18 5 L 26 13 L 26 27 L 18 35 L 4 35 Z M 10 11 L 10 29 L 16 29 L 20 25 L 20 15 L 16 11 Z" fill="currentColor"/>
+      <rect x="29" y="5" width="5" height="30" rx="1" fill="currentColor"/>
+      <rect x="33" y="5" width="14" height="5" fill="currentColor"/>
+      <rect x="45" y="2" width="4" height="11" rx="1" fill="currentColor"/>
+      <rect x="33" y="17.5" width="11" height="5" fill="currentColor"/>
+      <rect x="42" y="15" width="4" height="10" rx="1" fill="currentColor"/>
+      <rect x="37.5" y="17.5" width="3" height="5" fill="#e60000"/>
+      <rect x="33" y="30" width="14" height="5" fill="currentColor"/>
+      <rect x="45" y="27" width="4" height="11" rx="1" fill="currentColor"/>
+      <path d="M 52 5 L 60 5 L 65 24 L 70 5 L 78 5 L 68 35 L 62 35 Z" fill="currentColor"/>
+    </svg>`;
 
   return `
     <div class="brand-lockup">
-      <div class="brand-mark">${mark}</div>
+      <div class="brand-mark" style="background:transparent; padding:0; border:none; display:flex; align-items:center; color: var(--brand);">$_{svgMark}</div>
       <div>
         <h1 class="brand-title">${escapeHtml(gymName)}</h1>
         <p class="brand-subtitle">${escapeHtml(cityPart)}</p>
       </div>
     </div>
-  `;
+  `.replace('$_{svgMark}', svgMark);
 }
 
 function navButton(id, label) {
@@ -412,26 +427,148 @@ function navButton(id, label) {
 }
 
 function renderLogin() {
+  const gymName  = state?.gym?.name    || "DEV FITNESS GYM";
+  const gymPhone = state?.gym?.phone   || "9572762242";
+  const gymAddr  = state?.gym?.address || "Bokaro Steel City";
+  const cityPart = gymAddr.split(",").find(p => p.toLowerCase().includes("bokaro"))?.trim() || "Bokaro Steel City";
+
   app.innerHTML = `
-    <div class="login-screen">
-      <section class="login-panel">
-        ${brand()}
-        <h2>Front desk control.</h2>
-        <form class="login-form" id="loginForm">
-          <label class="field">
-            <span>Username</span>
-            <input name="username" autocomplete="username" value="admin" required />
-          </label>
-          <label class="field">
-            <span>Password</span>
-            <input name="password" type="password" autocomplete="current-password" value="devfitness" required />
-          </label>
-          <div class="error" id="loginError"></div>
-          <button class="btn primary" type="submit">→ Login</button>
-        </form>
-        <p class="brand-subtitle">Demo credentials: admin / devfitness</p>
-      </section>
-      <section class="login-art" aria-label="Gym interior"></section>
+    <div class="login-screen-v2">
+
+      <!-- Full-screen background -->
+      <div class="login-bg"></div>
+      <div class="login-overlay"></div>
+
+      <!-- LEFT: Brand & Info Panel -->
+      <div class="login-left">
+        <div class="login-left-inner">
+
+          <!-- Creative Logo Block -->
+          <div class="login-brand-block">
+            <!-- Custom DEV Dumbbell Lettermark Logo -->
+            <div class="login-brand-mark">
+              <svg width="80" height="40" viewBox="0 0 80 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- D: Complete Sharp -->
+                <path d="M 4 5 L 18 5 L 26 13 L 26 27 L 18 35 L 4 35 Z M 10 11 L 10 29 L 16 29 L 20 25 L 20 15 L 16 11 Z" fill="white"/>
+
+                <!-- E (Barbell) -->
+                <!-- Left vertical stem -->
+                <rect x="29" y="5" width="5" height="30" rx="1" fill="white"/>
+                
+                <!-- Top horizontal rod + plate -->
+                <rect x="33" y="5" width="14" height="5" fill="white"/>
+                <rect x="45" y="2" width="4" height="11" rx="1" fill="white"/>
+                
+                <!-- Middle horizontal rod + plate -->
+                <rect x="33" y="17.5" width="11" height="5" fill="white"/>
+                <rect x="42" y="15" width="4" height="10" rx="1" fill="white"/>
+                <rect x="37.5" y="17.5" width="3" height="5" fill="#e60000"/>
+
+                <!-- Bottom horizontal rod + plate -->
+                <rect x="33" y="30" width="14" height="5" fill="white"/>
+                <rect x="45" y="27" width="4" height="11" rx="1" fill="white"/>
+                
+                <!-- V: Clean aggressive -->
+                <path d="M 52 5 L 60 5 L 65 24 L 70 5 L 78 5 L 68 35 L 62 35 Z" fill="white"/>
+              </svg>
+            </div>
+            <div>
+              <div class="login-gym-city">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                ${cityPart} &nbsp;&middot;&nbsp; Est. 2020
+              </div>
+            </div>
+          </div>
+
+          <!-- HERO: Unique Split-Word Gym Branding (tasteful sizing) -->
+          <div class="login-hero-brand">
+            <!-- FITNESS — fire gradient (the hero word) -->
+            <div class="hero-word hero-fitness">
+              <span class="hw-inner">FITNESS</span>
+              <div class="fitness-reflection">FITNESS</div>
+            </div>
+
+            <!-- Laser divider + dumbbell icon -->
+            <div class="hero-laser">
+              <div class="laser-line"></div>
+              <svg class="laser-dumbbell" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/></svg>
+              <div class="laser-line"></div>
+            </div>
+
+            <!-- GYM — neon outline -->
+            <div class="hero-word hero-gym">
+              <span class="hw-inner">GYM</span>
+            </div>
+          </div>
+
+          <!-- Gym details -->
+          <div class="login-gym-details">
+            <div class="gym-detail-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
+              ${gymPhone}
+            </div>
+            <div class="gym-detail-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+              ${cityPart}, Jharkhand
+            </div>
+          </div>
+
+          <!-- Feature stats -->
+          <div class="login-stats-row">
+            <div class="login-stat-badge">
+              <div class="login-stat-val">500+</div>
+              <div class="login-stat-lbl">Members Managed</div>
+            </div>
+            <div class="login-stat-badge">
+              <div class="login-stat-val">₹10L+</div>
+              <div class="login-stat-lbl">Payments Tracked</div>
+            </div>
+            <div class="login-stat-badge">
+              <div class="login-stat-val">1000+</div>
+              <div class="login-stat-lbl">Renewals Done</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="login-footer">
+          <span>DEV FITNESS GYM Management System · v1.0</span>
+          <span>Powered by AnoCloud</span>
+        </div>
+      </div>
+
+      <!-- RIGHT: Login Card -->
+      <div class="login-right">
+        <div class="login-card">
+          <div class="login-card-header">
+            <div class="login-card-title">Welcome Back</div>
+            <div class="login-card-sub">Sign in to access your gym dashboard</div>
+          </div>
+
+          <form class="login-form" id="loginForm">
+            <label class="field">
+              <span>Username</span>
+              <input name="username" autocomplete="username" value="admin" required placeholder="Enter username" />
+            </label>
+            <label class="field">
+              <span>Password</span>
+              <input name="password" type="password" autocomplete="current-password" value="devfitness" required placeholder="Enter password" />
+            </label>
+            <div class="error" id="loginError"></div>
+            <button class="btn primary login-submit-btn" type="submit">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+              Login to Dashboard
+            </button>
+          </form>
+
+          <div class="login-demo-creds">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            Demo: admin / devfitness
+          </div>
+        </div>
+      </div>
+
     </div>
   `;
 
@@ -580,22 +717,59 @@ function statusBadge(status) {
 
 function statCards() {
   const stats = computeStats();
+  const today = todayISO();
+
+  const urgentItems = [
+    stats.due > 0     ? { label: "Due Payments",    val: stats.due,      cls: "stat-danger",  icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>` } : null,
+    stats.expiring > 0 ? { label: "Expiring Soon",  val: stats.expiring, cls: "stat-warning", icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>` } : null,
+    stats.pendingReminders > 0 ? { label: "Pending Reminders", val: stats.pendingReminders, cls: "stat-warning", icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zm6-6V11a6 6 0 0 0-5-5.91V4a1 1 0 0 0-2 0v1.09A6 6 0 0 0 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>` } : null,
+  ].filter(Boolean);
+
+  const urgentHtml = urgentItems.length > 0 ? `
+    <div class="attention-section">
+      <div class="attention-header">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+        Attention Required
+      </div>
+      <div class="attention-grid">
+        ${urgentItems.map(it => `
+          <div class="attention-item ${it.cls}">
+            <span class="attention-icon">${it.icon}</span>
+            <div>
+              <div class="attention-val">${it.val}</div>
+              <div class="attention-label">${it.label}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  ` : `
+    <div class="attention-section all-clear">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      All Clear — No urgent items today!
+    </div>
+  `;
+
   return `
+    ${urgentHtml}
     <div class="grid stats-grid">
-      ${stat("Total Members", stats.total)}
-      ${stat("Active Members", stats.active)}
-      ${stat("Due Payments", stats.due)}
-      ${stat("Expiring Soon", stats.expiring)}
-      ${stat("Expired Members", stats.expired)}
-      ${stat("Revenue This Year", money(stats.revenueThisYear))}
-      ${stat("Renewals This Month", stats.renewalsThisMonth)}
-      ${stat("Pending Reminders", stats.pendingReminders)}
+      ${stat("Total Members",    stats.total,               "stat-neutral", `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`)}
+      ${stat("Active Members",   stats.active,             "stat-success", `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`)}
+      ${stat("Due Payments",     stats.due,                "stat-danger",  `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`)}
+      ${stat("Expiring Soon",    stats.expiring > 0 ? stats.expiring : "✓ None", stats.expiring > 0 ? "stat-warning" : "stat-success", `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`)}
+      ${stat("Expired Members",  stats.expired,             "stat-muted",   `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`)}
+      ${stat("This Month",       money(stats.monthlyCollection), "stat-success", `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`)}
+      ${stat("Renewals / Month", stats.renewalsThisMonth,   "stat-neutral", `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>`)}
+      ${stat("Pending Reminders",stats.pendingReminders > 0 ? stats.pendingReminders : "✓ All sent", stats.pendingReminders > 0 ? "stat-warning" : "stat-success", `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22a2 2 0 0 0 2-2H10a2 2 0 0 0 2 2zm6-6V11a6 6 0 0 0-5-5.91V4a1 1 0 0 0-2 0v1.09A6 6 0 0 0 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>`)}
     </div>
   `;
 }
 
-function stat(label, value) {
-  return `<section class="card stat"><span class="kicker">${label}</span><span class="value">${value}</span></section>`;
+function stat(label, value, colorClass = "stat-neutral", iconSvg = "") {
+  return `<section class="card stat ${colorClass}">
+    <div class="stat-top">${iconSvg}<span class="kicker">${label}</span></div>
+    <span class="value">${value}</span>
+  </section>`;
 }
 
 function computeStats() {
@@ -608,74 +782,234 @@ function computeStats() {
     if (status === "expired") counts.expired += 1;
   });
   
-  const currentYear = todayISO().slice(0, 4);
+  const today = todayISO();
+  const currentYear = today.slice(0, 4);
+  const currentMonth = today.slice(0, 7);
+
   const revenueThisYear = state.payments
     .filter(p => p.date.startsWith(currentYear))
     .reduce((sum, p) => sum + Number(p.amount), 0);
     
-  const currentMonth = todayISO().slice(0, 7);
+  const monthlyCollection = state.payments
+    .filter(p => p.date.startsWith(currentMonth))
+    .reduce((sum, p) => sum + Number(p.amount), 0);
+
+  const todayCollection = state.payments
+    .filter(p => p.date === today)
+    .reduce((sum, p) => sum + Number(p.amount), 0);
+
   const renewalsThisMonth = state.members
-    .filter(m => m.expiryDate.slice(0, 7) === currentMonth)
-    .length;
+    .filter(m => m.expiryDate.slice(0, 7) === currentMonth).length;
     
   const pendingReminders = state.members.filter(member => {
     const status = statusOf(member);
     if (status === "Due" || status === "Expired" || status === "Expiring Soon") {
-      const sentToday = state.reminders.some(r => r.memberId === member.id && r.sentAt === todayISO());
+      const sentToday = state.reminders.some(r => r.memberId === member.id && r.sentAt === today);
       return !sentToday;
     }
     return false;
   }).length;
   
-  return {
-    ...counts,
-    revenueThisYear,
-    renewalsThisMonth,
-    pendingReminders
-  };
+  return { ...counts, revenueThisYear, monthlyCollection, todayCollection, renewalsThisMonth, pendingReminders };
 }
 
 const views = {
   dashboard() {
     const today = todayISO();
-    const recentPayments = [...state.payments].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 8);
-    const recentRegistrations = [...state.members].sort((a, b) => b.registeredAt.localeCompare(a.registeredAt)).slice(0, 5);
+    const stats = computeStats();
+    const recentPayments = [...state.payments].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
+    const recentRegistrations = [...state.members].sort((a, b) => b.registeredAt.localeCompare(a.registeredAt)).slice(0, 4);
     
     const upcoming = state.members
       .filter((member) => daysToExpiry(member.expiryDate) >= 0 && daysToExpiry(member.expiryDate) <= 7)
       .sort((a, b) => a.expiryDate.localeCompare(b.expiryDate));
-      
-    const todayCollection = state.payments.filter((p) => p.date === today).reduce((sum, p) => sum + Number(p.amount), 0);
-    const month = today.slice(0, 7);
-    const monthlyCollection = state.payments.filter((p) => p.date.startsWith(month)).reduce((sum, p) => sum + Number(p.amount), 0);
+
+    const expiringToday = state.members.filter(m => daysToExpiry(m.expiryDate) === 0).length;
+    const duePay = state.members.filter(m => statusOf(m) === "Due").length;
+    const failedRem = state.reminders.filter(r => r.status === "Failed").length;
+    
+    // Greeting
+    const hour = new Date().getHours();
+    const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
+
+    // Recent Activity feed from payments + reminders
+    const activityItems = [
+      ...state.payments.map(p => { const m = state.members.find(x => x.id === p.memberId); return { date: p.date, text: `Payment of ${money(p.amount)} received from ${m?.name || 'Unknown'}`, icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>', type: 'payment' }; }),
+      ...state.reminders.filter(r => r.status === "Sent").map(r => { const m = state.members.find(x => x.id === r.memberId); return { date: r.sentAt, text: `Reminder sent to ${m?.name || 'Unknown'}`, icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>', type: 'reminder' }; }),
+      ...state.members.map(m => ({ date: m.registeredAt, text: `${m.name} joined as a new member`, icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00b0ff" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>', type: 'register' })),
+    ].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 6);
+
+    // Payment health
+    const paidCount = state.members.filter(m => statusOf(m) === "Active").length;
+    const dueCount = state.members.filter(m => statusOf(m) === "Due").length;
+    const expiredCount = state.members.filter(m => statusOf(m) === "Expired").length;
+    const totalForHealth = paidCount + dueCount + expiredCount || 1;
 
     return `
+      <!-- Greeting Banner -->
+      <div class="dash-greeting">
+        <div>
+          <div class="dash-greeting-title">${greeting}, Admin</div>
+          <div class="dash-greeting-sub">Welcome back to DEV FITNESS GYM · ${new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' })}</div>
+        </div>
+        <div class="dash-summary-pills">
+          <span class="pill pill-green">${stats.active} Active</span>
+          <span class="pill pill-red">${stats.due} Due</span>
+          <span class="pill pill-yellow">${stats.expiring} Expiring</span>
+          <span class="pill pill-white">${money(stats.monthlyCollection)} This Month</span>
+        </div>
+      </div>
+
       ${statCards()}
       ${quickActionsSection()}
-      <div class="grid two-col" style="margin-top:16px">
+
+      <!-- Row: Today's Action Center + Renewal Center Widget -->
+      <div class="grid two-col" style="margin-top:20px">
+        <!-- TODAY'S ACTION CENTER -->
+        <section class="card pad">
+          <div class="section-head">
+            <h2>Today's Tasks</h2>
+            <span class="badge ${ (expiringToday + duePay + failedRem) > 0 ? 'due' : 'active'}">${expiringToday + duePay + failedRem > 0 ? (expiringToday + duePay + failedRem) + ' items' : 'All clear'}</span>
+          </div>
+          <ul class="task-list">
+            <li class="task-item ${expiringToday > 0 ? 'task-urgent' : 'task-ok'}">
+              <span class="task-dot"></span>
+              <span>${expiringToday > 0 ? `⚠ ${expiringToday} member(s) expire today` : '✓ No expiries today'}</span>
+              ${expiringToday > 0 ? `<button class="btn" style="margin-left:auto;padding:6px 12px;font-size:0.75rem" data-go="renewals">View</button>` : ''}
+            </li>
+            <li class="task-item ${duePay > 0 ? 'task-urgent' : 'task-ok'}">
+              <span class="task-dot"></span>
+              <span>${duePay > 0 ? `⚠ ${duePay} payment(s) due` : '✓ No pending payments'}</span>
+              ${duePay > 0 ? `<button class="btn" style="margin-left:auto;padding:6px 12px;font-size:0.75rem" data-go="payments">Collect</button>` : ''}
+            </li>
+            <li class="task-item ${failedRem > 0 ? 'task-urgent' : 'task-ok'}">
+              <span class="task-dot"></span>
+              <span>${failedRem > 0 ? `⚠ ${failedRem} reminder(s) failed` : '✓ All reminders sent'}</span>
+              ${failedRem > 0 ? `<button class="btn" style="margin-left:auto;padding:6px 12px;font-size:0.75rem" data-go="reminders">Fix</button>` : ''}
+            </li>
+            <li class="task-item task-info">
+              <span class="task-dot"></span>
+              <span>Today's collection: <strong>${money(stats.todayCollection)}</strong></span>
+            </li>
+          </ul>
+        </section>
+
+        <!-- RENEWAL CENTER WIDGET -->
+        <section class="card pad">
+          <div class="section-head"><h2>Renewal Center</h2><button class="btn" data-go="renewals">View All</button></div>
+          <div class="renewal-widget-grid">
+            <div class="renewal-stat renewal-today">
+              <div class="renewal-num">${expiringToday}</div>
+              <div class="renewal-label">Expiring Today</div>
+            </div>
+            <div class="renewal-stat renewal-week">
+              <div class="renewal-num">${upcoming.filter(m => daysToExpiry(m.expiryDate) > 0).length}</div>
+              <div class="renewal-label">In 7 Days</div>
+            </div>
+            <div class="renewal-stat renewal-expired">
+              <div class="renewal-num">${stats.expired}</div>
+              <div class="renewal-label">Expired</div>
+            </div>
+            <div class="renewal-stat renewal-revenue">
+              <div class="renewal-num" style="font-size:1.3rem">${money(stats.revenueThisYear)}</div>
+              <div class="renewal-label">Year Revenue</div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Row: Revenue Chart + Payment Health -->
+      <div class="grid two-col" style="margin-top:20px">
         <section class="card pad">
           <div class="section-head">
             <h2>Monthly Revenue Trend</h2>
-            <span class="money">${money(monthlyCollection)} this month</span>
+            <div style="text-align:right">
+              <div style="font-size:0.75rem;color:var(--text-muted)">This Month</div>
+              <div class="money">${money(stats.monthlyCollection)}</div>
+            </div>
           </div>
           ${monthlyRevenueTrendChart()}
         </section>
-        ${memberRiskWidget()}
+
+        <!-- PAYMENT HEALTH -->
+        <section class="card pad">
+          <div class="section-head"><h2>Payment Health</h2></div>
+          <div class="payment-health">
+            <div class="health-row">
+              <span class="health-label">Paid / Active</span>
+              <div class="health-bar-wrap"><div class="health-bar health-paid" style="width:${(paidCount/totalForHealth*100).toFixed(0)}%"></div></div>
+              <span class="health-count success-text">${paidCount}</span>
+            </div>
+            <div class="health-row">
+              <span class="health-label">Due</span>
+              <div class="health-bar-wrap"><div class="health-bar health-due" style="width:${(dueCount/totalForHealth*100).toFixed(0)}%"></div></div>
+              <span class="health-count danger-text">${dueCount}</span>
+            </div>
+            <div class="health-row">
+              <span class="health-label">Expired</span>
+              <div class="health-bar-wrap"><div class="health-bar health-expired" style="width:${(expiredCount/totalForHealth*100).toFixed(0)}%"></div></div>
+              <span class="health-count muted">${expiredCount}</span>
+            </div>
+          </div>
+          <div style="margin-top:24px">
+            <div class="section-head" style="margin-bottom:12px"><h2>Revenue Breakdown</h2></div>
+            <div class="rev-breakdown">
+              <div class="rev-item"><div class="rev-label">Today</div><div class="rev-val">${money(stats.todayCollection)}</div></div>
+              <div class="rev-item"><div class="rev-label">This Month</div><div class="rev-val success-text">${money(stats.monthlyCollection)}</div></div>
+              <div class="rev-item"><div class="rev-label">This Year</div><div class="rev-val">${money(stats.revenueThisYear)}</div></div>
+            </div>
+          </div>
+        </section>
       </div>
-      
-      <div class="grid two-col" style="margin-top:16px">
+
+      <!-- Row: Upcoming Expiries + Members With Dues -->
+      <div class="grid two-col" style="margin-top:20px">
         <section class="card pad">
           <div class="section-head"><h2>Upcoming Expiries</h2><button class="btn" data-go="renewals">Renewal Center</button></div>
-          ${memberMiniTable(upcoming, "No memberships expiring in the next 7 days.")}
+          ${upcoming.length === 0 
+            ? `<div class="empty-state"><div class="empty-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg></div><div>No expiries in the next 7 days</div></div>`
+            : `<div class="expiry-list">${upcoming.map(m => {
+                const days = daysToExpiry(m.expiryDate);
+                const cls = days === 0 ? 'expiry-today' : days <= 3 ? 'expiry-urgent' : 'expiry-soon';
+                return `<div class="expiry-row ${cls}">
+                  <div class="user-cell">
+                    <div class="avatar-tiny">${m.photo ? `<img src="${m.photo}"/>` : initials(m.name)}</div>
+                    <div><strong>${m.name}</strong><span class="muted block" style="font-size:0.8rem">${m.memberNo}</span></div>
+                  </div>
+                  <div class="expiry-days">${days === 0 ? '<span class="badge due">Today</span>' : `<span class="badge expiring-soon">${days}d left</span>`}</div>
+                  <button class="btn primary" style="padding:6px 12px;font-size:0.75rem" data-action="renew" data-id="${m.id}">Renew</button>
+                </div>`;
+              }).join('')}</div>`
+          }
+        </section>
+        ${memberRiskWidget()}
+      </div>
+
+      <!-- Row: Recent Activity + Recent Registrations -->
+      <div class="grid two-col" style="margin-top:20px">
+        <section class="card pad">
+          <div class="section-head"><h2>Recent Activity</h2></div>
+          <div class="activity-feed">
+            ${activityItems.length === 0 
+              ? `<div class="empty-state"><div class="empty-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div><div>No activity yet</div></div>`
+              : activityItems.map(a => `
+                <div class="activity-item">
+                  <span class="activity-icon">${a.icon}</span>
+                  <div class="activity-text">${a.text}</div>
+                  <div class="activity-date">${formatDate(a.date)}</div>
+                </div>
+              `).join('')
+            }
+          </div>
         </section>
         <section class="card pad">
-          <div class="section-head"><h2>Recent Registrations</h2><button class="btn" data-go="members">View Register</button></div>
+          <div class="section-head"><h2>Recent Registrations</h2><button class="btn" data-go="members">View All</button></div>
           ${memberMiniTable(recentRegistrations, "No registrations yet.")}
         </section>
       </div>
       
-      <section class="card pad" style="margin-top:16px">
-        <div class="section-head"><h2>Recent Payments</h2><button class="btn" data-go="payments">Ledger</button></div>
+      <section class="card pad" style="margin-top:20px">
+        <div class="section-head"><h2>Recent Payments</h2><button class="btn" data-go="payments">Full Ledger</button></div>
         ${paymentTable(recentPayments)}
       </section>
     `;
@@ -714,13 +1048,13 @@ const views = {
       ${pageHeader("Renewal Center", "Track memberships expiring today, this week, and already expired.")}
       <div class="tabs renewal-tabs">
         <button class="tab ${activeTab === "today" ? "active" : ""}" data-action="renewals-tab" data-tab="today">
-          🔴 Today (${counts.today})
+          <span style="color:#e60000; font-size:1.2rem; line-height:0">●</span> Today (${counts.today})
         </button>
         <button class="tab ${activeTab === "this-week" ? "active" : ""}" data-action="renewals-tab" data-tab="this-week">
-          🟠 This Week (${counts.week})
+          <span style="color:#fbbf24; font-size:1.2rem; line-height:0">●</span> This Week (${counts.week})
         </button>
         <button class="tab ${activeTab === "expired" ? "active" : ""}" data-action="renewals-tab" data-tab="expired">
-          ⚫ Expired (${counts.expired})
+          <span style="color:#e60000; font-size:1.2rem; line-height:0">●</span> Expired (${counts.expired})
         </button>
       </div>
       
@@ -1870,20 +2204,28 @@ function quickActionsSection() {
       <div class="section-head"><h2>Quick Actions</h2></div>
       <div class="quick-actions-grid">
         <button class="btn quick-action-btn" data-go="new-member">
-          <span class="icon">➕</span>
+          <span class="icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </span>
           <span>Add Member</span>
         </button>
-        <button class="btn quick-action-btn" data-action="quick-payment">
-          <span class="icon">₹</span>
-          <span>Add Payment</span>
+        <button class="btn quick-action-btn" data-go="payments">
+          <span class="icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><rect x="1" y="4" width="22" height="16" rx="0"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+          </span>
+          <span>Payments</span>
         </button>
-        <button class="btn quick-action-btn" data-action="quick-renew">
-          <span class="icon">↻</span>
-          <span>Renew Membership</span>
+        <button class="btn quick-action-btn" data-go="renewals">
+          <span class="icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+          </span>
+          <span>Renewal Center</span>
         </button>
-        <button class="btn quick-action-btn" data-action="quick-reminder">
-          <span class="icon">✆</span>
-          <span>Send Reminder</span>
+        <button class="btn quick-action-btn" data-go="reminders">
+          <span class="icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          </span>
+          <span>Reminders</span>
         </button>
       </div>
     </section>

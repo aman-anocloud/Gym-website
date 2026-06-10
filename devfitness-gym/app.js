@@ -1,5 +1,6 @@
 const STORAGE_KEY = "devfitness-gym-v1";
 const SESSION_KEY = "devfitness-session";
+const THEME_KEY = "devfitness-theme";
 
 const plans = {
   strength: {
@@ -44,6 +45,9 @@ let draftMember = defaultMemberDraft();
 let activeModal = null;
 let showNotifications = false;
 let mobileMenuOpen = false;
+let theme = localStorage.getItem(THEME_KEY) || "dark";
+
+applyTheme(theme);
 
 window.addEventListener("hashchange", () => {
   view = location.hash.replace("#", "") || "dashboard";
@@ -313,6 +317,8 @@ function isLoggedIn() {
 }
 
 function render() {
+  applyTheme(theme);
+
   if (!isLoggedIn()) {
     renderLogin();
     return;
@@ -342,6 +348,9 @@ function render() {
           </button>
           <div class="header-title">${navItems.find(([key]) => key === page)?.[1] || "Dashboard"}</div>
           <div class="header-right">
+            <button class="theme-toggle" data-action="toggle-theme" title="Switch to ${theme === "dark" ? "light" : "dark"} mode" aria-label="Switch to ${theme === "dark" ? "light" : "dark"} mode">
+              <span class="theme-toggle-icon">${themeIcon()}</span>
+            </button>
             <div class="notification-container">
               <button class="notification-bell" data-action="toggle-notifications" title="Notifications">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 22a2 2 0 0 0 2-2H10a2 2 0 0 0 2 2zm6-6V11a6 6 0 0 0-5-5.91V4a1 1 0 0 0-2 0v1.09A6 6 0 0 0 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
@@ -358,7 +367,7 @@ function render() {
                     </div>
                   </div>
                   <div class="notification-item ${notifs.expiring > 0 ? "expiring" : ""}" data-go="renewals" data-tab="this-week">
-                    <span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
+                    <span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a58bff" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
                     <div>
                       <strong>${notifs.expiring} Expiring Soon</strong>
                       <p>Renewals due in next 7 days</p>
@@ -434,6 +443,9 @@ function renderLogin() {
 
   app.innerHTML = `
     <div class="login-screen-v2">
+      <button class="theme-toggle login-theme-toggle" data-action="toggle-login-theme" title="Switch to ${theme === "dark" ? "light" : "dark"} mode" aria-label="Switch to ${theme === "dark" ? "light" : "dark"} mode">
+        <span class="theme-toggle-icon">${themeIcon()}</span>
+      </button>
 
       <!-- Full-screen background -->
       <div class="login-bg"></div>
@@ -572,6 +584,13 @@ function renderLogin() {
     </div>
   `;
 
+  document.querySelector('[data-action="toggle-login-theme"]')?.addEventListener("click", () => {
+    theme = theme === "dark" ? "light" : "dark";
+    localStorage.setItem(THEME_KEY, theme);
+    applyTheme(theme);
+    renderLogin();
+  });
+
   document.querySelector("#loginForm").addEventListener("submit", (event) => {
     event.preventDefault();
     const lockUntil = Number(localStorage.getItem("devfitness-lock") || 0);
@@ -600,6 +619,13 @@ function renderLogin() {
 }
 
 function attachCommonEvents() {
+  document.querySelector('[data-action="toggle-theme"]')?.addEventListener("click", () => {
+    theme = theme === "dark" ? "light" : "dark";
+    localStorage.setItem(THEME_KEY, theme);
+    applyTheme(theme);
+    render();
+  });
+
   document.querySelectorAll("[data-go]").forEach((button) => {
     button.addEventListener("click", () => {
       location.hash = button.dataset.go;
@@ -643,6 +669,17 @@ function attachCommonEvents() {
       if (dropdown) dropdown.classList.remove("show");
     }
   });
+}
+
+function applyTheme(nextTheme) {
+  document.documentElement.dataset.theme = nextTheme === "light" ? "light" : "dark";
+}
+
+function themeIcon() {
+  if (theme === "dark") {
+    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>`;
+  }
+  return `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 13.1A8.2 8.2 0 0 1 10.9 3a7.1 7.1 0 1 0 10.1 10.1z"></path></svg>`;
 }
 
 function pageHeader(title, subtitle, actions = "") {
@@ -746,21 +783,21 @@ function statCards() {
   ` : `
     <div class="attention-section all-clear">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-      All Clear — No urgent items today!
+      All clear. No urgent items today.
     </div>
   `;
 
   return `
     ${urgentHtml}
     <div class="grid stats-grid">
-      ${stat("Total Members",    stats.total,               "stat-neutral", `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`)}
-      ${stat("Active Members",   stats.active,             "stat-success", `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`)}
-      ${stat("Due Payments",     stats.due,                "stat-danger",  `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`)}
-      ${stat("Expiring Soon",    stats.expiring > 0 ? stats.expiring : "✓ None", stats.expiring > 0 ? "stat-warning" : "stat-success", `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`)}
+      ${stat("Total Members",    stats.total,               "stat-indigo", `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`)}
+      ${stat("Active Members",   stats.active,             "stat-cyan", `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`)}
+      ${stat("Due Payments",     stats.due,                "stat-rose",  `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`)}
+      ${stat("Expiring Soon",    stats.expiring > 0 ? stats.expiring : "None", stats.expiring > 0 ? "stat-amber" : "stat-slate", `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`)}
       ${stat("Expired Members",  stats.expired,             "stat-muted",   `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`)}
-      ${stat("This Month",       money(stats.monthlyCollection), "stat-success", `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`)}
-      ${stat("Renewals / Month", stats.renewalsThisMonth,   "stat-neutral", `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>`)}
-      ${stat("Pending Reminders",stats.pendingReminders > 0 ? stats.pendingReminders : "✓ All sent", stats.pendingReminders > 0 ? "stat-warning" : "stat-success", `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22a2 2 0 0 0 2-2H10a2 2 0 0 0 2 2zm6-6V11a6 6 0 0 0-5-5.91V4a1 1 0 0 0-2 0v1.09A6 6 0 0 0 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>`)}
+      ${stat("This Month",       money(stats.monthlyCollection), "stat-blue", `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`)}
+      ${stat("Renewals / Month", stats.renewalsThisMonth,   "stat-violet", `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>`)}
+      ${stat("Pending Reminders",stats.pendingReminders > 0 ? stats.pendingReminders : "All sent", stats.pendingReminders > 0 ? "stat-plum" : "stat-slate", `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22a2 2 0 0 0 2-2H10a2 2 0 0 0 2 2zm6-6V11a6 6 0 0 0-5-5.91V4a1 1 0 0 0-2 0v1.09A6 6 0 0 0 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>`)}
     </div>
   `;
 }
@@ -834,9 +871,9 @@ const views = {
 
     // Recent Activity feed from payments + reminders
     const activityItems = [
-      ...state.payments.map(p => { const m = state.members.find(x => x.id === p.memberId); return { date: p.date, text: `Payment of ${money(p.amount)} received from ${m?.name || 'Unknown'}`, icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>', type: 'payment' }; }),
-      ...state.reminders.filter(r => r.status === "Sent").map(r => { const m = state.members.find(x => x.id === r.memberId); return { date: r.sentAt, text: `Reminder sent to ${m?.name || 'Unknown'}`, icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>', type: 'reminder' }; }),
-      ...state.members.map(m => ({ date: m.registeredAt, text: `${m.name} joined as a new member`, icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00b0ff" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>', type: 'register' })),
+      ...state.payments.map(p => { const m = state.members.find(x => x.id === p.memberId); return { date: p.date, text: `Payment of ${money(p.amount)} received from ${m?.name || 'Unknown'}`, icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5e8cff" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>', type: 'payment' }; }),
+      ...state.reminders.filter(r => r.status === "Sent").map(r => { const m = state.members.find(x => x.id === r.memberId); return { date: r.sentAt, text: `Reminder sent to ${m?.name || 'Unknown'}`, icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a58bff" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>', type: 'reminder' }; }),
+      ...state.members.map(m => ({ date: m.registeredAt, text: `${m.name} joined as a new member`, icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#35d0ff" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>', type: 'register' })),
     ].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 6);
 
     // Payment health
@@ -853,10 +890,10 @@ const views = {
           <div class="dash-greeting-sub">Welcome back to DEV FITNESS GYM · ${new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' })}</div>
         </div>
         <div class="dash-summary-pills">
-          <span class="pill pill-green">${stats.active} Active</span>
-          <span class="pill pill-red">${stats.due} Due</span>
-          <span class="pill pill-yellow">${stats.expiring} Expiring</span>
-          <span class="pill pill-white">${money(stats.monthlyCollection)} This Month</span>
+          <span class="pill pill-cyan">${stats.active} Active</span>
+          <span class="pill pill-rose">${stats.due} Due</span>
+          <span class="pill pill-violet">${stats.expiring} Expiring</span>
+          <span class="pill pill-indigo">${money(stats.monthlyCollection)} This Month</span>
         </div>
       </div>
 
